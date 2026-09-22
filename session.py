@@ -7,16 +7,16 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Session
 from dotenv import load_dotenv
-
 load_dotenv()
-
+DATABASE_URL = os.getenv("COCKROACH_URL")
+print(DATABASE_URL)
 engine = create_engine(
-    os.getenv("COCKROACH_URL", ""),
-    connect_args={"sslmode": "verify-full"},
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=5,
-)
+    DATABASE_URL,
+    connect_args={"sslmode": "verify-full"},)
+    # pool_pre_ping=True,
+    # pool_size=10,
+    # max_overflow=5,
+# )
 
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 

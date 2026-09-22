@@ -15,7 +15,7 @@ from sqlalchemy import select, func, or_, case
 
 from session import get_db
 from models import FoundFile, UploadedFile, User
-from routes.auth import require_auth
+
 from crawler import download_file_sync, build_headers, generate_thumbnail
 from storage_r2 import download_bytes, upload_bytes, make_key, content_disposition
 from merger import merge_pdf_bytes
@@ -233,7 +233,7 @@ def serve_file(file_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/{file_id}/download")
-def trigger_download(file_id: str, db: Session = Depends(get_db), _u: User = Depends(require_auth)):
+def trigger_download(file_id: str, db: Session = Depends(get_db),):
     ff = db.scalars(select(FoundFile).where(FoundFile.id == file_id)).first()
     if not ff:
         raise HTTPException(status_code=404)

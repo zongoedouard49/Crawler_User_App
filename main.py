@@ -14,33 +14,14 @@ from sqlalchemy import select
 
 from session import engine, SessionLocal, Base
 from models import User, UserRole
-from auth import hash_password
 
-import routes.auth      as route_auth
 import routes.files     as route_files
-import routes.upload    as route_upload
 import routes.favorites as route_favorites
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    Base.metadata.create_all(engine)
-    db = SessionLocal()
-    try:
-        if not db.scalars(select(User).filter_by(username="admin")).first():
-            db.add(User(
-                username="admin",
-                password_hash=hash_password("admin123"),
-                role=UserRole.ADMIN,
-            ))
-            db.commit()
-            print("[INIT] Compte admin créé — admin / admin123")
-    finally:
-        db.close()
-    yield
 
 
-app = FastAPI(title="LinkHarvest — Bibliothèque", version="3.0.0", lifespan=lifespan)
+app = FastAPI(title="LinkHarvest — Bibliothèque", version="3.0.0")
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
@@ -50,9 +31,9 @@ app.mount("/static", StaticFiles(directory=os.path.join(FRONTEND, "static")), na
 templates = Jinja2Templates(directory=os.path.join(FRONTEND, "templates"))
 
 api = APIRouter(prefix="/api")
-api.include_router(route_auth.router)
+
 api.include_router(route_files.router)
-api.include_router(route_upload.router)
+
 api.include_router(route_favorites.router)
 app.include_router(api)
 

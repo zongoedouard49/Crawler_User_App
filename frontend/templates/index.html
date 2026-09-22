@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Bibliothèque de fichiers">
+  <title>LinkHarvest — Fichiers</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div id="toasts" class="toasts-container" aria-live="polite"></div>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-logo">
+        <span class="brand-mark" data-icon="book" aria-hidden="true"></span>
+        LinkHarvest
+      </span>
+      <span class="topbar-subtitle">Bibliothèque de fichiers</span>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-theme" id="theme-toggle-btn" type="button" title="Changer de thème" aria-label="Changer de thème"></button>
+    </div>
+  </header>
+
+  <main class="main-view active" id="view-files">
+    <section class="view-header">
+      <div>
+        <p class="eyebrow">BIBLIOTHÈQUE</p>
+        <h1>Fichiers <span id="file-count" class="heading-count"></span></h1>
+        <p class="view-description">Prévisualisez, ouvrez et téléchargez vos fichiers.</p>
+      </div>
+
+      <div class="search-bar" role="search">
+        <label class="search-field" for="file-search">
+          <span data-icon="search" aria-hidden="true"></span>
+          <input type="search" id="file-search" placeholder="Rechercher un fichier…" autocomplete="off">
+          <button id="clear-search" class="clear-search" type="button" title="Effacer la recherche" aria-label="Effacer la recherche" hidden>
+            <span data-icon="close" aria-hidden="true"></span>
+          </button>
+        </label>
+      </div>
+    </section>
+
+    <section class="toolbar" aria-label="Actions sur les fichiers">
+      <span id="selection-hint" class="sel-hint"></span>
+      <button class="btn btn-secondary btn-sm" id="merge-selected" type="button" disabled>
+        <span data-icon="merge" aria-hidden="true"></span>
+        Fusionner la sélection
+      </button>
+    </section>
+
+    <section id="file-cards" class="cards-grid" aria-live="polite"></section>
+    <nav id="file-pagination" class="pagination" aria-label="Pagination des fichiers"></nav>
+  </main>
+
+  <div id="modal-merge" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="merge-modal-title" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="merge-modal-title">Fusionner des fichiers</h2>
+        <button class="modal-close" id="close-merge" type="button" aria-label="Fermer">
+          <span data-icon="close" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="merge-info" class="merge-info"></p>
+        <label class="form-label" for="merge-filename">Nom du fichier de sortie</label>
+        <input type="text" id="merge-filename" class="form-input" value="fusion.pdf">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancel-merge" type="button">Annuler</button>
+        <button id="merge-confirm-btn" class="btn btn-primary" type="button">
+          <span data-icon="merge" aria-hidden="true"></span>
+          Fusionner et télécharger
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

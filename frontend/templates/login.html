@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion — WebCrawler</title>
+<script>document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark');</script>
+<link rel="stylesheet" href="/static/css/style.css">
+<style>
+  body { display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--bg); }
+  .login-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px 36px 32px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  }
+  .login-logo {
+    display:flex; align-items:center; gap:9px;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    color: var(--fg);
+    margin-bottom: 6px;
+  }
+  .login-logo span { color: var(--accent); }
+  .login-logo-mark {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:30px; height:30px; border:1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    border-radius:8px; background:color-mix(in srgb, var(--accent) 12%, var(--surface));
+  }
+  .login-logo-mark svg { width:17px; height:17px; color:var(--accent); }
+  .login-sub { font-size: 11px; color: var(--muted); margin-bottom: 28px; }
+  .login-field { margin-bottom: 16px; }
+  .login-field label { display:block; font-size:11px; color:var(--muted); margin-bottom:5px; }
+  .login-field input {
+    width: 100%; box-sizing: border-box;
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--fg); padding: 9px 12px; border-radius: 6px; font-size: 13px;
+  }
+  .login-field input:focus { outline: none; border-color: var(--accent); }
+  .login-btn {
+    width: 100%; padding: 10px; margin-top: 8px;
+    background: var(--accent); color: #fff; border: none;
+    border-radius: 6px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .login-btn:hover { opacity: .85; }
+  .login-btn:disabled { opacity: .5; cursor: default; }
+  .login-error {
+    background: #2a0e0e; border: 1px solid #7f1d1d;
+    color: #fca5a5; border-radius: 6px; padding: 8px 12px;
+    font-size: 12px; margin-bottom: 14px; display: none;
+  }
+  .login-public-link {
+    text-align: center; margin-top: 16px; font-size: 11px; color: var(--muted);
+  }
+  .login-public-link a { color: var(--accent); text-decoration: none; display:inline-flex; align-items:center; justify-content:center; gap:5px; }
+  .login-public-link a svg { width:14px; height:14px; }
+</style>
+</head>
+<body>
+<div class="login-card">
+  <div class="login-logo">
+    <span class="login-logo-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h8"/></svg>
+    </span>
+    WEB<span>CRAWLER</span>
+  </div>
+  <div class="login-sub">Espace administration</div>
+  <div class="login-error" id="login-error"></div>
+  <div class="login-field">
+    <label>Nom d'utilisateur</label>
+    <input type="text" id="login-username" placeholder="admin" autocomplete="username">
+  </div>
+  <div class="login-field">
+    <label>Mot de passe</label>
+    <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+  </div>
+  <button class="login-btn" id="login-btn" onclick="doLogin()">Se connecter</button>
+  <div class="login-public-link">
+    <a href="/frontend/static">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>
+      Consulter les fichiers sans connexion
+    </a>
+  </div>
+</div>
+<script>
+  // Redirect if already logged in
+  if (localStorage.getItem('auth_token')) window.location.href = '/';
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+  async function doLogin() {
+    const btn = document.getElementById('login-btn');
+    const errEl = document.getElementById('login-error');
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    errEl.style.display = 'none';
+    if (!username || !password) { showError('Veuillez remplir tous les champs'); return; }
+    btn.disabled = true; btn.textContent = 'Connexion…';
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) { showError(data.detail || 'Identifiants incorrects'); return; }
+      localStorage.setItem('auth_token', data.access_token);
+      localStorage.setItem('auth_user', JSON.stringify({ username: data.username, role: data.role }));
+      window.location.href = '/';
+    } catch (e) {
+      showError('Erreur de connexion au serveur');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Se connecter';
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('login-error');
+    el.textContent = msg; el.style.display = 'block';
+  }
+</script>
+</body>
+</html>
